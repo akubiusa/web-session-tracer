@@ -43,12 +43,8 @@ export class PageTracer {
 
   /**
    * Current operation directory, where network events are written.
-   * Set together with currentMutationDir to the newest operation's directory.
    */
   private currentOpDir: string | null = null
-
-  /** Current operation directory, where DOM mutations are written. */
-  private currentMutationDir: string | null = null
 
   constructor(page: Page, storage: SessionStorage, config: TracerConfig) {
     this.page = page
@@ -159,7 +155,6 @@ export class PageTracer {
 
     // Set before the sleep so mutations and network events that arrive during
     // it are recorded under this operation.
-    this.currentMutationDir = opDir
     this.currentOpDir = opDir
 
     // click / submit wait for the DOM to settle (mutations arrive meanwhile)
@@ -225,7 +220,7 @@ export class PageTracer {
    * Discards it if no operation directory is set yet.
    */
   private async saveMutation(rawChanges: RawDomChange[]): Promise<void> {
-    const targetDir = this.currentMutationDir
+    const targetDir = this.currentOpDir
     if (!targetDir || rawChanges.length === 0) return
 
     const changes: DomChange[] = rawChanges.map((raw) => {
@@ -309,7 +304,6 @@ export class PageTracer {
     await this.captureSnapshot(opDir)
     // Later mutation and network events are written to this navigation directory
     this.currentOpDir = opDir
-    this.currentMutationDir = opDir
   }
 
   /**
