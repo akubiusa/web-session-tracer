@@ -13,6 +13,7 @@ import type {
 } from '../types'
 import { computeChangeLevel } from './mutation-level'
 import { NetworkTracker } from './network-tracker'
+import { maskPasswordInputs } from './snapshot-mask'
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -318,7 +319,7 @@ export class PageTracer {
         'DOMSnapshot.captureSnapshot',
         { computedStyles: [] }
       )
-      await this.storage.writeOpSnapshot(opDir, snapshot)
+      await this.storage.writeOpSnapshot(opDir, maskPasswordInputs(snapshot))
     } catch (error) {
       console.warn('[PageTracer] Failed to capture the DOM snapshot:', error)
     }
